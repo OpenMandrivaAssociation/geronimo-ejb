@@ -3,7 +3,7 @@
 
 Name:             geronimo-ejb
 Version:          1.0
-Release:          4
+Release:          6
 Summary:          Java EE: EJB API v3.1
 Group:            Development/Java
 License:          ASL 2.0
