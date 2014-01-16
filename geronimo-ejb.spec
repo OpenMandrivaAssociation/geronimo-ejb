@@ -23,6 +23,10 @@ BuildRequires:    interceptor_api
 BuildRequires:    annotation_api
 BuildRequires:    jaxrpc_api
 BuildRequires:    geronimo-osgi-locator
+%if 0%{?fedora}
+%else
+BuildRequires:    geronimo-jta
+%endif
 
 Provides:         ejb_api = %{spec_ver}
 
