@@ -19,7 +19,11 @@ BuildRequires:    jpackage-utils
 BuildRequires:    maven-local
 BuildRequires:    geronimo-parent-poms
 BuildRequires:    jta
+%if 0%{?fedora}
 BuildRequires:    interceptor_api
+%else
+BuildRequires:    geronimo-interceptor
+%endif
 BuildRequires:    annotation_api
 BuildRequires:    jaxrpc_api
 BuildRequires:    geronimo-osgi-locator
