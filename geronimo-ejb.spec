@@ -14,6 +14,9 @@ Source0:          https://repo1.maven.org/maven2/org/apache/geronimo/specs/%{spe
 
 BuildArch:        noarch
 BuildRequires:    python
+# Literal, so the first rpmbuild -bs records them before sysjar is installed.
+BuildRequires:	maven
+BuildRequires:	java-current-devel
 BuildSystem:	maven
 BuildOption(install):	--file-name %{name} --link ejb --alias org.apache.geronimo.specs:geronimo-ejb_2.1_spec --alias org.apache.geronimo.specs:geronimo-ejb_3.0_spec --alias javax.ejb:ejb --alias javax.ejb:ejb-api
 
