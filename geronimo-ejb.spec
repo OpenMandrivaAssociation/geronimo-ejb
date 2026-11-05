@@ -6,7 +6,7 @@ Name:             geronimo-ejb
 Version:          1.0.2
 Release:          1
 Summary:          Java EE: EJB API v3.1
-
+Group:            Development/Java
 License:          ASL 2.0
 URL:              https://geronimo.apache.org
 
@@ -21,6 +21,8 @@ BuildSystem:	maven
 BuildOption(install):	--file-name %{name} --link ejb --alias org.apache.geronimo.specs:geronimo-ejb_2.1_spec --alias org.apache.geronimo.specs:geronimo-ejb_3.0_spec --alias javax.ejb:ejb --alias javax.ejb:ejb-api
 
 BuildRequires:    geronimo-jta
+BuildRequires:    geronimo-jaxrpc
+BuildRequires:    geronimo-osgi-locator
 
 Provides:         ejb_api = %{spec_ver}
 
@@ -43,21 +45,35 @@ This package contains the API documentation for %{name}.
 %prep
 %setup -q -n %{spec_name}-%{version}
 sed -i 's/\r//' LICENSE
-# genesis-java5-flava is not packaged. Coordinates are already on this POM.
-# The parent registered bundle packaging. Load the bundle plugin as an extension.
+# genesis-java5-flava is not packaged. Annotation and interceptor APIs are
+# not imported. Bundle packaging needs a plugin we do not ship.
 python - <<'PY'
-import re
-from pathlib import Path
-path = Path("pom.xml")
-text = path.read_text()
-text = re.sub(r"\s*<parent>.*?</parent>", "", text, count=1, flags=re.S)
-text = re.sub(
-    r"(<artifactId>maven-bundle-plugin</artifactId>)",
-    r"\1\n                <extensions>true</extensions>",
-    text,
-    count=1,
-)
-path.write_text(text)
+import xml.etree.ElementTree as ET
+NS = "http://maven.apache.org/POM/4.0.0"
+ET.register_namespace("", NS)
+
+def local(tag):
+    return tag.split("}", 1)[-1]
+
+tree = ET.parse("pom.xml")
+root = tree.getroot()
+for node in list(root):
+    if local(node.tag) in {"parent", "build", "distributionManagement"}:
+        root.remove(node)
+for node in root.iter(f"{{{NS}}}packaging"):
+    node.text = "jar"
+drop = {"geronimo-interceptor_1.1_spec", "geronimo-annotation_1.1_spec"}
+for deps in list(root):
+    if local(deps.tag) != "dependencies":
+        continue
+    for dep in list(deps):
+        artifact = ""
+        for node in dep:
+            if local(node.tag) == "artifactId":
+                artifact = (node.text or "").strip()
+        if artifact in drop:
+            deps.remove(dep)
+tree.write("pom.xml", encoding="utf-8", xml_declaration=True)
 PY
 
 
