@@ -43,7 +43,14 @@ This package contains the API documentation for %{name}.
 
 %endif
 %prep
-%setup -q -n %{spec_name}-%{version}
+%setup -q -c -T
+# The builder rpmuncompress passes this gzip archive to tar, which rejects it.
+python - %{SOURCE0} <<'PY'
+import sys
+import tarfile
+tarfile.open(sys.argv[1]).extractall(".")
+PY
+cd %{spec_name}-%{version}
 sed -i 's/\r//' LICENSE
 # genesis-java5-flava is not packaged. Annotation and interceptor APIs are
 # not imported. Bundle packaging needs a plugin we do not ship.
