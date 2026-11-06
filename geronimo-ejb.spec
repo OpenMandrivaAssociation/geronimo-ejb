@@ -45,12 +45,17 @@ This package contains the API documentation for %{name}.
 %prep
 %setup -q -c -T
 # The builder rpmuncompress passes this gzip archive to tar, which rejects it.
-python - %{SOURCE0} <<'PY'
+python - %{SOURCE0} %{spec_name}-%{version} <<'PY'
+import shutil
 import sys
 import tarfile
+from pathlib import Path
 tarfile.open(sys.argv[1]).extractall(".")
+inner = Path(sys.argv[2])
+for child in inner.iterdir():
+    shutil.move(str(child), ".")
+inner.rmdir()
 PY
-cd %{spec_name}-%{version}
 sed -i 's/\r//' LICENSE
 # genesis-java5-flava is not packaged. Annotation and interceptor APIs are
 # not imported. Bundle packaging needs a plugin we do not ship.
