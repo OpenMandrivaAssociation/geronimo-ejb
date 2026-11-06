@@ -23,6 +23,8 @@ BuildOption(install):	--file-name %{name} --link ejb --alias org.apache.geronimo
 BuildRequires:    geronimo-jta
 BuildRequires:    geronimo-jaxrpc
 BuildRequires:    geronimo-osgi-locator
+# geronimo-jta's installed POM parents this. The jar does not require it.
+BuildRequires:    mvn(org.apache.geronimo.specs:specs-parent:pom::)
 
 Provides:         ejb_api = %{spec_ver}
 
